@@ -40,7 +40,26 @@ def get_machine_info():
     }
 
 
+def _parse_skill_description(skill_md_path):
+    """Parse the description field from a SKILL.md frontmatter."""
+    try:
+        content = skill_md_path.read_text()
+    except Exception:
+        return ""
+    if not content.startswith("---"):
+        return ""
+    try:
+        end = content.index("---", 3)
+    except ValueError:
+        return ""
+    for line in content[3:end].split("\n"):
+        if line.strip().startswith("description:"):
+            return line.split(":", 1)[1].strip().strip("'\"")
+    return ""
+
+
 def scan_skills():
+    """Inventory Claude Code skills with descriptions."""
     skills = []
     skills_dir = CLAUDE_DIR / "skills"
     if not skills_dir.exists():
@@ -49,20 +68,42 @@ def scan_skills():
         if not d.is_dir():
             continue
         skill_md = d / "SKILL.md"
-        name = d.name
-        description = ""
         if skill_md.exists():
-            content = skill_md.read_text()
-            if content.startswith("---"):
-                try:
-                    end = content.index("---", 3)
-                    for line in content[3:end].split("\n"):
-                        if line.strip().startswith("description:"):
-                            description = line.split(":", 1)[1].strip().strip("'\"")
-                except ValueError:
-                    pass
-        skills.append({"name": name, "description": description})
+            skills.append({
+                "name": d.name,
+                "description": _parse_skill_description(skill_md),
+            })
     return skills
+
+
+def scan_claude_desktop_skills():
+    """Inventory skills installed in Claude Desktop (claude.ai app, macOS).
+
+    Claude Desktop stores skills under:
+    ~/Library/Application Support/Claude/local-agent-mode-sessions/skills-plugin/<uuid>/<uuid>/skills/
+
+    Skills may appear in multiple session directories. Deduplicates by name,
+    keeping the most recently modified SKILL.md.
+    """
+    base = Path.home() / "Library" / "Application Support" / "Claude" / "local-agent-mode-sessions" / "skills-plugin"
+    if not base.exists():
+        return []
+
+    found = {}  # name -> (mtime, description)
+    for skill_md in base.glob("*/*/skills/*/SKILL.md"):
+        name = skill_md.parent.name
+        try:
+            mtime = skill_md.stat().st_mtime
+        except Exception:
+            continue
+        if name in found and found[name][0] >= mtime:
+            continue
+        found[name] = (mtime, _parse_skill_description(skill_md))
+
+    return [
+        {"name": name, "description": desc}
+        for name, (_, desc) in sorted(found.items())
+    ]
 
 
 def scan_plugins():
@@ -141,6 +182,7 @@ def scan_claude_md():
 def format_snapshot(machine_name):
     info = get_machine_info()
     skills = scan_skills()
+    desktop_skills = scan_claude_desktop_skills()
     plugins = scan_plugins()
     settings = scan_settings()
     mcp = scan_mcp_servers()
@@ -156,7 +198,7 @@ def format_snapshot(machine_name):
     lines.append("---")
     lines.append(f"machine: {machine_name}")
     lines.append(f"timestamp: {timestamp}")
-    lines.append("scanner_version: '1.0'")
+    lines.append("scanner_version: '1.1'")
     lines.append(f"hostname: {info['hostname']}")
     lines.append(f"claude_code_version: {info['claude_code_version']}")
     lines.append(f"node_version: {info['node_version']}")
@@ -168,7 +210,7 @@ def format_snapshot(machine_name):
     lines.append(f"*Generated {timestamp}*")
     lines.append("")
 
-    # Skills
+    # Claude Code Skills
     lines.append(f"## Skills ({len(skills)} installed)")
     lines.append("")
     if skills:
@@ -178,6 +220,20 @@ def format_snapshot(machine_name):
             lines.append(f"| {s['name']} | {s['description']} |")
     else:
         lines.append("*No custom skills installed.*")
+    lines.append("")
+
+    # Claude Desktop Skills (separate ecosystem on macOS)
+    lines.append(f"## Claude Desktop Skills ({len(desktop_skills)} installed)")
+    lines.append("")
+    if desktop_skills:
+        lines.append("*Skills installed in the Claude Desktop app (claude.ai). Separate from Claude Code skills.*")
+        lines.append("")
+        lines.append("| Name | Description |")
+        lines.append("|------|-------------|")
+        for s in desktop_skills:
+            lines.append(f"| {s['name']} | {s['description']} |")
+    else:
+        lines.append("*No Claude Desktop skills found (or Claude Desktop not installed).*")
     lines.append("")
 
     # Plugins

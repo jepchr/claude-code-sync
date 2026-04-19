@@ -30,7 +30,8 @@ Most improvements apply automatically. Conflicts get flagged for you to decide.
 
 ## What the scanner captures
 
-- Skills (name, description, count)
+- Claude Code skills (name, description, count)
+- Claude Desktop skills (macOS only — separate ecosystem from Claude Code)
 - Plugins (name, version, scope)
 - MCP servers (name, type — no credentials)
 - Settings (thinking mode, effort level, token limits, permissions count)
