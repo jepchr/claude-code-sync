@@ -28,6 +28,23 @@ Inspired by [Andrej Karpathy's post on LLM Knowledge Bases](https://x.com/karpat
 
 Most improvements apply automatically. Conflicts get flagged for you to decide.
 
+## Bonus: Auto-sync Claude Desktop skills into Claude Code
+
+Claude Desktop and Claude Code both use SKILL.md files — same format. An optional
+helper script mirrors Claude Desktop skills into Claude Code so they're available
+from the CLI too, and refreshes them when you edit them in Claude Desktop.
+
+```bash
+# Run once manually, or add to your SessionStart hook for automatic sync
+python3 scripts/sync-desktop-skills.py
+```
+
+It writes copies to `<sync-folder>/skills/desktop/` and creates symlinks in
+`~/.claude/skills/`. Skips any Claude Code skill name that already exists as
+a real directory. Removes stale symlinks when a skill disappears from Claude Desktop.
+
+macOS only (reads from `~/Library/Application Support/Claude/`).
+
 ## What the scanner captures
 
 - Claude Code skills (name, description, count)
