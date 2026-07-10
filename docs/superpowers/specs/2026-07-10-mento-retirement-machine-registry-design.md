@@ -93,7 +93,7 @@ iCloud→local is a cross-volume move, so every step is **copy → verify (`diff
 | Pending items | `suggestions/pending.md` | rewritten. Rule: items requiring action *on Mento* → resolved-moot; consolidation status notes → archive; the "add a hostname guard" item → resolved-fixed-by-this-work. Expected end state: **0 pending** (startup banner goes quiet) |
 | Wiki (7 articles + INDEX) | `wiki/` | **not hand-edited** — after the mechanics land, run the updated `/insights-update` once and let the system recompile its own wiki solo (retired machines shown as history with archive pointer; the moot "personal snapshots are actually Mento" warning drops out). Hand-fix only what the run misses |
 | "Mento Work" section | `~/CLAUDE.md` | excised to `~/Archives/mento/mento-CLAUDE-section.md`; one-line breadcrumb left: employer era ended 2026-06, archive location |
-| Mento skills ×5: `mento-brand-voice`, `mento-editorial-doctrine`, `mento-internal-memo`, `ld-audience-voice`, `querying-mento-bigquery` | `~/.claude/skills/` (+ iCloud `skills/` if symlinked) | check each: symlink → move iCloud source to `~/Archives/mento/skills/` + remove link; real dir → move dir. Generic writing skills (`ai-tell-editor`, `humanizer`, `editorial-style-guide`, `resume-draft-reviewer`) **stay** |
+| Mento skills ×5: `mento-brand-voice`, `mento-editorial-doctrine`, `mento-internal-memo`, `ld-audience-voice`, `querying-mento-bigquery` | `~/.claude/skills/` symlinks → iCloud `skills/desktop/` (all five verified 2026-07-10 to be **Claude-Desktop-mirrored** — Claude Desktop is their source of truth, and `sync-desktop-skills.py` re-creates anything removed) | add a `.sync-ignore` exclusion list to `skills/desktop/` + a filter in `sync-desktop-skills.py` (the existing stale-symlink cleanup then removes the links); move the iCloud copies to `~/Archives/mento/skills/`. Generic writing skills (`ai-tell-editor`, `humanizer`, `editorial-style-guide`, `resume-draft-reviewer`) **stay** |
 | Stale role line | `~/.claude/skills/discover/SKILL.md:69` | placeholder: "starting new role (2026-07) — update on day 1 of new job" |
 | Mento wording | `~/.claude/skills/learn/SKILL.md` (description + line 192) | machine-agnostic: "all enrolled machines pick it up via the sync hook" |
 | Auto-update prompt hook | `~/.claude/settings.json` | reword "both machine snapshots" → "all enrolled machines" |
@@ -102,6 +102,7 @@ iCloud→local is a cross-volume move, so every step is **copy → verify (`diff
 **Manual checklist for Jeppe (agent must not touch accounts):**
 - claude.ai remote connectors that look Mento-tied: Sanity (project `sd8wddo4`), Google Cloud BigQuery (mento-analytics), Zapier — disconnect or keep, your call.
 - `linear-server` MCP in `~/.claude.json` — confirm whether Linear was Mento's or personal before removing.
+- Optionally delete the five Mento skills inside the Claude Desktop app (they're `.sync-ignore`d, so leaving them is harmless — they just won't mirror).
 - Notion "Marketing OS" access — leaves with the Mento account; nothing to do locally beyond the CLAUDE.md excision above.
 
 ## §3 Interim single-machine behavior
