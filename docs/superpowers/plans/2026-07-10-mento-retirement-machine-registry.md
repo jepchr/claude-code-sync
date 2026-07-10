@@ -33,13 +33,13 @@
 **Interfaces:**
 - Produces: the archive directory tree all later tasks move data into; backups that make every later edit reversible.
 
-- [ ] **Step 1: Create the archive tree**
+- [x] **Step 1: Create the archive tree**
 
 ```bash
 mkdir -p ~/Archives/mento/pre-change-backups ~/Archives/mento/skills
 ```
 
-- [ ] **Step 2: Write the archive README**
+- [x] **Step 2: Write the archive README**
 
 Write `~/Archives/mento/README.md` with exactly:
 
@@ -74,7 +74,7 @@ Related but not here: Mento memories stay merged inside claude-mem (history);
 Spec: claude-code-sync repo, docs/superpowers/specs/2026-07-10-mento-retirement-machine-registry-design.md
 ```
 
-- [ ] **Step 3: Back up every file later tasks will modify**
+- [x] **Step 3: Back up every file later tasks will modify**
 
 ```bash
 SYNC="$HOME/Library/Mobile Documents/com~apple~CloudDocs/claude-code-insights"
@@ -95,7 +95,7 @@ ls -la "$B"
 
 Expected: 11 files listed in `$B`.
 
-- [ ] **Step 4: Verify**
+- [x] **Step 4: Verify**
 
 ```bash
 diff ~/Archives/mento/pre-change-backups/check-insights.sh "$HOME/Library/Mobile Documents/com~apple~CloudDocs/claude-code-insights/scripts/check-insights.sh" && echo BACKUPS-OK
@@ -121,7 +121,7 @@ Expected: `BACKUPS-OK`.
   - `registry.REGISTRY_PATH: Path`
   - CLI: `registry.py --self` prints the label **only if the matched machine is active** (exit 2 unenrolled, 3 registry missing/corrupt, 4 retired); `registry.py --others-active` prints other active labels one per line (exit 2 if self unenrolled).
 
-- [ ] **Step 1: Write machines.json**
+- [x] **Step 1: Write machines.json**
 
 Write `$SYNC/machines.json` with exactly (mento FIRST — see Global Constraints):
 
@@ -146,7 +146,7 @@ Write `$SYNC/machines.json` with exactly (mento FIRST — see Global Constraints
 }
 ```
 
-- [ ] **Step 2: Write registry.py**
+- [x] **Step 2: Write registry.py**
 
 Write `$SYNC/scripts/registry.py` with exactly:
 
@@ -239,7 +239,7 @@ if __name__ == "__main__":
     main()
 ```
 
-- [ ] **Step 3: Test the pure matcher (all four cases)**
+- [x] **Step 3: Test the pure matcher (all four cases)**
 
 ```bash
 cd "$HOME/Library/Mobile Documents/com~apple~CloudDocs/claude-code-insights/scripts" && python3 - <<'EOF'
@@ -261,7 +261,7 @@ EOF
 
 Expected: `MATCH-TESTS-OK`.
 
-- [ ] **Step 4: Test the CLI**
+- [x] **Step 4: Test the CLI**
 
 ```bash
 SYNC="$HOME/Library/Mobile Documents/com~apple~CloudDocs/claude-code-insights"
@@ -282,7 +282,7 @@ Expected: `personal` / `exit=0`, then **no labels** (mento is retired) / `exit=0
 - Consumes: `registry.self_machine()`, `registry.REGISTRY_PATH` from Task 2 (module import — registry.py sits in the same directory).
 - Produces: `python3 scan-environment.py [label]` — label now **optional** (defaults to this machine's registry label); refuses on mismatch/unenrolled/retired. `--force` is retired (it was the misfiling vector).
 
-- [ ] **Step 1: Replace `_detect_machine_label()` with a registry import helper**
+- [x] **Step 1: Replace `_detect_machine_label()` with a registry import helper**
 
 Delete the whole `_detect_machine_label()` function (including its docstring, lines 395–413) and put in its place:
 
@@ -294,7 +294,7 @@ def _registry():
     return registry
 ```
 
-- [ ] **Step 2: Replace the top of `main()`**
+- [x] **Step 2: Replace the top of `main()`**
 
 Replace everything from `def main():` down to (and including) the `sys.exit(2)` of the old hostname guard with:
 
@@ -331,7 +331,7 @@ def main():
 
 The lines that follow (`snapshot = format_snapshot(machine_name)` onward) stay unchanged. Also update the usage docstring at the top of the file: `Usage: python3 scan-environment.py [machine-name]   (defaults to this machine's registry label)`.
 
-- [ ] **Step 3: Test — mismatched label refused**
+- [x] **Step 3: Test — mismatched label refused**
 
 ```bash
 SYNC="$HOME/Library/Mobile Documents/com~apple~CloudDocs/claude-code-insights"
@@ -341,7 +341,7 @@ python3 "$SYNC/scripts/scan-environment.py" work; echo "exit=$?"
 
 Expected: both print the "Refusing to scan… this machine is 'personal'" warning; both `exit=2`. The guard fires before any write — no new files appear under `$SYNC/raw/` (no `raw/work/` is created, and `raw/mento/` — still present until Task 6 — gains nothing).
 
-- [ ] **Step 4: Test — no-arg scan writes personal snapshot**
+- [x] **Step 4: Test — no-arg scan writes personal snapshot**
 
 ```bash
 python3 "$SYNC/scripts/scan-environment.py"; echo "exit=$?"
@@ -350,7 +350,7 @@ ls -la "$SYNC/raw/personal/latest.md"
 
 Expected: `Snapshot written to …/raw/personal/latest.md`, `exit=0`, and the file's mtime is now.
 
-- [ ] **Step 5: Test — retired machine refused (simulated)**
+- [x] **Step 5: Test — retired machine refused (simulated)**
 
 ```bash
 cd "$SYNC/scripts" && python3 - <<'EOF'
@@ -375,7 +375,7 @@ Expected: `RETIRED-GUARD-DATA-OK…`. (The scanner's retired branch can't run fo
 - Consumes: `registry.py --self` and `registry.py --others-active` CLI from Task 2.
 - Produces: hook works with 0..N other active machines; `.needs-update` flag now contains one label per line (the prompt hook only tests existence, so this is compatible).
 
-- [ ] **Step 1: Replace the hardcoded identity block**
+- [x] **Step 1: Replace the hardcoded identity block**
 
 Replace lines 6–9:
 
@@ -406,7 +406,7 @@ SCAN_INTERVAL_SECONDS=$((3 * 86400))  # 3 days
 
 and DELETE the now-duplicated original guard at old lines 11–12 (`# Exit silently…` / `[ -d "$INSIGHTS_DIR" ] || exit 0`) that sits just below.
 
-- [ ] **Step 2: Replace the other-machine block**
+- [x] **Step 2: Replace the other-machine block**
 
 Replace old lines 87–106 (from `# Check for other machine's data` through the `fi` that ends the `if [ -f "$other_snapshot" ]` block) with:
 
@@ -438,7 +438,7 @@ fi
 
 The pending-suggestions block below it (old lines 108–115) stays unchanged.
 
-- [ ] **Step 3: Test — direct hook run**
+- [x] **Step 3: Test — direct hook run**
 
 ```bash
 bash "$HOME/Library/Mobile Documents/com~apple~CloudDocs/claude-code-insights/scripts/check-insights.sh"; echo "exit=$?"
@@ -447,7 +447,7 @@ ls "$HOME/Library/Mobile Documents/com~apple~CloudDocs/claude-code-insights/.nee
 
 Expected: `exit=0`; possibly a `[desktop-sync] …` line and (until Task 7 lands) the pending-suggestions banner; **no** "New data from" line; `.needs-update`: `No such file or directory`.
 
-- [ ] **Step 4: Syntax check**
+- [x] **Step 4: Syntax check**
 
 ```bash
 bash -n "$HOME/Library/Mobile Documents/com~apple~CloudDocs/claude-code-insights/scripts/check-insights.sh" && echo SYNTAX-OK
@@ -468,7 +468,7 @@ The five Mento skills are symlinks into the Claude-Desktop mirror (`$SYNC/skills
 **Interfaces:**
 - Produces: `.sync-ignore` (one skill name per line, `#` comments) permanently excludes names from the Desktop→Code mirror; excluded names' symlinks are auto-removed by the existing `cleanup_stale_symlinks()`.
 
-- [ ] **Step 1: Write the exclusion list**
+- [x] **Step 1: Write the exclusion list**
 
 Write `$SYNC/skills/desktop/.sync-ignore` with exactly:
 
@@ -483,7 +483,7 @@ ld-audience-voice
 querying-mento-bigquery
 ```
 
-- [ ] **Step 2: Add `load_ignore_list()` to sync-desktop-skills.py**
+- [x] **Step 2: Add `load_ignore_list()` to sync-desktop-skills.py**
 
 Insert after the `find_desktop_skills()` function (after line 62):
 
@@ -501,7 +501,7 @@ def load_ignore_list():
     return names
 ```
 
-- [ ] **Step 3: Apply the filter in `main()`**
+- [x] **Step 3: Apply the filter in `main()`**
 
 In `main()`, directly after `desktop_skills = find_desktop_skills()` (line 137), insert:
 
@@ -512,7 +512,7 @@ In `main()`, directly after `desktop_skills = find_desktop_skills()` (line 137),
 
 (`cleanup_stale_symlinks(set(desktop_skills.keys()))` further down then treats ignored names as gone and removes their `~/.claude/skills/` symlinks automatically.)
 
-- [ ] **Step 4: Run and verify the links drop**
+- [x] **Step 4: Run and verify the links drop**
 
 ```bash
 SYNC="$HOME/Library/Mobile Documents/com~apple~CloudDocs/claude-code-insights"
@@ -522,7 +522,7 @@ ls ~/.claude/skills/ | grep -E "mento|ld-audience" ; echo "grep-exit=$?"
 
 Expected: output includes `5 removed (…)` naming the five skills; the `grep` prints nothing, `grep-exit=1`.
 
-- [ ] **Step 5: Verify exclusion is idempotent**
+- [x] **Step 5: Verify exclusion is idempotent**
 
 ```bash
 python3 "$SYNC/scripts/sync-desktop-skills.py" --verbose
@@ -544,7 +544,7 @@ Expected: no `new`/`removed` mentions of the five names (e.g. `NN skills, no cha
 **Interfaces:**
 - Consumes: Task 5's `.sync-ignore` must already be live (else the desktop mirror re-creates the five skill dirs).
 
-- [ ] **Step 1: Copy each tree, then verify with `diff -r` before deleting**
+- [x] **Step 1: Copy each tree, then verify with `diff -r` before deleting**
 
 ```bash
 SYNC="$HOME/Library/Mobile Documents/com~apple~CloudDocs/claude-code-insights"
@@ -567,7 +567,7 @@ echo ALL-COPIES-VERIFIED
 
 Expected: `ALL-COPIES-VERIFIED` (any diff output = STOP, do not delete).
 
-- [ ] **Step 2: Delete the sources (only after Step 1 printed ALL-COPIES-VERIFIED)**
+- [x] **Step 2: Delete the sources (only after Step 1 printed ALL-COPIES-VERIFIED)**
 
 ```bash
 rm -rf "$SYNC/raw/mento" "$SYNC/migration" "$SYNC/suggestions/consolidate-to-personal.md" "$SYNC/scripts/check-insights-mento.sh"
@@ -579,7 +579,7 @@ ls "$SYNC/raw/"; ls "$SYNC/skills/desktop/" | head -25
 
 Expected: `raw/` shows only `claude-desktop` and `personal`; `skills/desktop/` shows no mento/ld-audience names (`.sync-ignore` remains).
 
-- [ ] **Step 3: Confirm nothing resurrects**
+- [x] **Step 3: Confirm nothing resurrects**
 
 ```bash
 python3 "$SYNC/scripts/sync-desktop-skills.py" --verbose | grep -E "mento|ld-audience"; echo "grep-exit=$?"
@@ -596,7 +596,7 @@ Expected: nothing printed, `grep-exit=1`.
 - Replace: `$SYNC/suggestions/pending.md` (old content → `~/Archives/mento/pending-final-2026-07-10.md`)
 - Verify-only: `$SYNC/suggestions/deferred.md` stays byte-identical (audited: zero Mento-only items).
 
-- [ ] **Step 1: Archive the old files, record deferred.md's checksum**
+- [x] **Step 1: Archive the old files, record deferred.md's checksum**
 
 ```bash
 SYNC="$HOME/Library/Mobile Documents/com~apple~CloudDocs/claude-code-insights"
@@ -609,7 +609,7 @@ md5 -q "$SYNC/suggestions/deferred.md"
 
 Expected: `ADOPTED-ARCHIVED`, `PENDING-ARCHIVED`, and an md5 hash — note it down for Step 4.
 
-- [ ] **Step 2: Write the fresh adopted.md**
+- [x] **Step 2: Write the fresh adopted.md**
 
 Overwrite `$SYNC/suggestions/adopted.md` with exactly:
 
@@ -626,7 +626,7 @@ synced folder. Numbering continues from #51 so wiki references stay valid.
 `deferred.md` (which keeps its full history here).*
 ```
 
-- [ ] **Step 3: Write the fresh pending.md**
+- [x] **Step 3: Write the fresh pending.md**
 
 Overwrite `$SYNC/suggestions/pending.md` with exactly (NOTE: no `- ` list lines — the hook counts `^- ` as pending items):
 
@@ -643,7 +643,7 @@ The system runs in single-machine mode until the next machine enrolls — see
 `onboarding/new-machine.md`.*
 ```
 
-- [ ] **Step 4: Verify the phantom banner is gone and deferred.md untouched**
+- [x] **Step 4: Verify the phantom banner is gone and deferred.md untouched**
 
 ```bash
 SYNC="$HOME/Library/Mobile Documents/com~apple~CloudDocs/claude-code-insights"
@@ -665,13 +665,13 @@ Expected: grep count `0` (no banner), and the md5 hash is byte-identical to the 
 
 (The `~/.claude/skills/` entries for these are symlinks into `$SYNC/skills/` — edit the iCloud source, both see it.)
 
-- [ ] **Step 1: insights-update SKILL.md — intro + Location**
+- [x] **Step 1: insights-update SKILL.md — intro + Location**
 
 Line 8: replace `You are maintaining a knowledge base about Claude Code environments across two machines.` with `You are maintaining a knowledge base about Claude Code environments across Jeppe's machines (registry: machines.json at the folder root).`
 
 In the `## Location` section, after the folder path line, add: `The machine registry is machines.json at the folder root — labels, hostname patterns, and status (active/retired).`
 
-- [ ] **Step 2: insights-update SKILL.md — Phase 1 rewrite**
+- [x] **Step 2: insights-update SKILL.md — Phase 1 rewrite**
 
 Replace the Phase 1 numbered list (old lines 35–41):
 
@@ -688,25 +688,25 @@ If only one ACTIVE machine has a snapshot, compile what you have — single-mach
 mode is normal (e.g. between jobs). Don't block on other machines.
 ```
 
-- [ ] **Step 3: insights-update SKILL.md — Phase 3 heading line**
+- [x] **Step 3: insights-update SKILL.md — Phase 3 heading line**
 
 Replace `Compare the two environments (if both snapshots exist) and categorize findings:` with `Compare the ACTIVE machines' environments (needs 2+ active snapshots; in single-machine mode skip the comparison and just refresh the wiki):`
 
-- [ ] **Step 4: learn SKILL.md — three spots**
+- [x] **Step 4: learn SKILL.md — three spots**
 
 1. Description (line 3), replace the final sentence `Writes to iCloud shared folder so both Personal and Mento pick it up automatically.` with `Writes to iCloud shared folder so all enrolled machines pick it up automatically.`
 2. Intro line `Turn a useful discovery from the current session into a shared skill that works across both machines.` → `…that works across all your machines.`
 3. Cross-machine propagation section (line ~192): `Learned skills live in `iCloud/skills/learned/`. On next Mento session, the hook will create a symlink for each learned skill automatically (via the `sync-learned-skills` step in `check-insights*.sh`).` → `Learned skills live in `iCloud/skills/learned/`. On each enrolled machine's next session, the hook creates a symlink for each learned skill automatically (via `check-insights.sh`).`
 
-- [ ] **Step 5: discover SKILL.md — role line**
+- [x] **Step 5: discover SKILL.md — role line**
 
 Replace line 69 `- **Role:** Head of Growth at Mento. Applying for Head of Brand and Content roles.` with `- **Role:** Starting a new role (2026-07) — update this line on day 1 of the new job. Previously Head of Growth at Mento.`
 
-- [ ] **Step 6: settings.json — prompt-hook wording**
+- [x] **Step 6: settings.json — prompt-hook wording**
 
 In `~/.claude/settings.json`, in the SessionStart prompt hook, replace the phrase `compile the wiki from both machine snapshots` with `compile the wiki from all enrolled machines' snapshots (see machines.json)`. Use a targeted string edit on the raw file (do NOT round-trip the JSON through a formatter).
 
-- [ ] **Step 7: Verify**
+- [x] **Step 7: Verify**
 
 ```bash
 SYNC="$HOME/Library/Mobile Documents/com~apple~CloudDocs/claude-code-insights"
@@ -727,7 +727,7 @@ Expected: four `0` counts and `SETTINGS-JSON-VALID`.
 - Modify: `~/CLAUDE.md` — lines 129–161 (the `---` separator + `# Mento Work…` section, which runs to EOF)
 - Create: `~/Archives/mento/mento-CLAUDE-section.md`
 
-- [ ] **Step 1: Archive the section**
+- [x] **Step 1: Archive the section**
 
 Copy lines 129–161 of `~/CLAUDE.md` (from the `---` separator through the end of the file — the whole `# Mento Work (migrated from Mento machine, 2026-06-03)` section including "Mento tool pointers" and "Marketing OS protocol") into `~/Archives/mento/mento-CLAUDE-section.md`, prefixed with:
 
@@ -736,7 +736,7 @@ Copy lines 129–161 of `~/CLAUDE.md` (from the `---` separator through the end 
 
 ```
 
-- [ ] **Step 2: Replace the section with a breadcrumb**
+- [x] **Step 2: Replace the section with a breadcrumb**
 
 In `~/CLAUDE.md`, replace everything from line 129 (`---`) to EOF with:
 
@@ -748,7 +748,7 @@ section — tool pointers, Marketing OS protocol — is archived at
 `~/Archives/mento/mento-CLAUDE-section.md`.)*
 ```
 
-- [ ] **Step 3: Verify**
+- [x] **Step 3: Verify**
 
 ```bash
 grep -c -i "mento" ~/CLAUDE.md
@@ -765,7 +765,7 @@ Expected: count is `2` (both in the breadcrumb); tail shows the breadcrumb; `SEC
 **Files:**
 - Create: `$SYNC/onboarding/new-machine.md`
 
-- [ ] **Step 1: Write the runbook**
+- [x] **Step 1: Write the runbook**
 
 Write `$SYNC/onboarding/new-machine.md` with exactly:
 
@@ -859,7 +859,7 @@ On the new machine:
    claude-code-sync repo under docs/superpowers/.)
 ```
 
-- [ ] **Step 2: Verify**
+- [x] **Step 2: Verify**
 
 ```bash
 ls -la "$HOME/Library/Mobile Documents/com~apple~CloudDocs/claude-code-insights/onboarding/new-machine.md"
@@ -874,7 +874,7 @@ Expected: file exists, non-zero size.
 **Files:**
 - Regenerated by the skill run: `$SYNC/wiki/*.md`, `$SYNC/health/latest.md`
 
-- [ ] **Step 1: Run the updated insights-update skill end-to-end**
+- [x] **Step 1: Run the updated insights-update skill end-to-end**
 
 In Claude Code, invoke the `insights-update` skill and follow its (now registry-driven) process: Phase 0 desktop sync → Phase 1 reads `machines.json` + the single active snapshot → single-machine mode (no comparison) → recompile the 7 wiki articles + INDEX → health check → 3–5 line report.
 
@@ -883,7 +883,7 @@ Expected wiki outcomes to verify by reading `wiki/INDEX.md` afterwards:
 - The 2026-05-28 "data-integrity finding" (personal snapshots were actually Mento) no longer appears as active — the registry + guard resolved it.
 - Quick stats reflect personal-only counts; no pending suggestions.
 
-- [ ] **Step 2: Stray-reference sweep over the live system**
+- [x] **Step 2: Stray-reference sweep over the live system**
 
 ```bash
 SYNC="$HOME/Library/Mobile Documents/com~apple~CloudDocs/claude-code-insights"
@@ -901,7 +901,7 @@ Expected files ONLY (all historical/intentional):
 
 Anything else in the list = a miss; fix it before proceeding.
 
-- [ ] **Step 3: Hook end-to-end, clean**
+- [x] **Step 3: Hook end-to-end, clean**
 
 ```bash
 bash "$SYNC/scripts/check-insights.sh"; echo "exit=$?"
@@ -909,7 +909,7 @@ bash "$SYNC/scripts/check-insights.sh"; echo "exit=$?"
 
 Expected: `exit=0`; no pending banner, no "New data from", no `.needs-update` file. (A `[desktop-sync]` or scan-freshness line is fine.)
 
-- [ ] **Step 4: Local skill surface check**
+- [x] **Step 4: Local skill surface check**
 
 ```bash
 ls ~/.claude/skills/ | grep -iE "mento|ld-audience"; echo "grep-exit=$?"
@@ -918,7 +918,7 @@ readlink ~/.claude/skills/insights-update && readlink ~/.claude/skills/learn && 
 
 Expected: first grep empty with `grep-exit=1`; the three readlinks still resolve into `$SYNC/skills/…` (shared skills intact).
 
-- [ ] **Step 5: Note for Jeppe**
+- [x] **Step 5: Note for Jeppe**
 
 The final proof is the next fresh Claude Code session: the startup line should show no `[insights] N pending suggestions` banner. Also hand Jeppe the manual checklist (spec §2): claude.ai connectors (Sanity `sd8wddo4`, Mento BigQuery, Zapier), the `linear-server` MCP personal-vs-Mento call, and optionally deleting the five Mento skills inside the Claude Desktop app (harmless if left — they're `.sync-ignore`d).
 
@@ -930,7 +930,7 @@ The final proof is the next fresh Claude Code session: the startup line should s
 - Already on branch `mento-retirement-spec`: the spec (amended) + this plan
 - Repo: `/Users/jeppe/Projects/claude-code-sync`
 
-- [ ] **Step 1: Commit any outstanding doc changes**
+- [x] **Step 1: Commit any outstanding doc changes**
 
 ```bash
 cd /Users/jeppe/Projects/claude-code-sync && git status --short
@@ -939,7 +939,7 @@ git add docs/ && git commit -m "Mento retirement executed: amend spec (desktop-s
 Co-Authored-By: Claude Fable 5 <noreply@anthropic.com>"
 ```
 
-- [ ] **Step 2: Open PR and merge (per Jeppe's git workflow: feature branch → PR → self-merge when mergeable)**
+- [x] **Step 2: Open PR and merge (per Jeppe's git workflow: feature branch → PR → self-merge when mergeable)**
 
 ```bash
 git push -u origin mento-retirement-spec
@@ -950,3 +950,36 @@ gh pr merge --squash --delete-branch
 ```
 
 Expected: PR merged into `main`.
+
+---
+
+## Execution notes (2026-07-10 — all 12 tasks completed)
+
+Deviations discovered and handled during execution, per Task 11's "anything
+else = a miss; fix it" rule:
+
+1. **Five `raw/personal/` snapshots were Mento hardware** (hostname audit:
+   2026-04-22, 05-04, 05-18, 05-21, 05-26 — the mislabel bug's droppings, and
+   May's open "delete later" action). Archived to
+   `~/Archives/mento/raw-snapshots/mislabeled-as-personal/`, removed from the
+   synced folder. Remaining dated snapshots verified personal by hostname.
+2. **`setup-mento.sh` (folder root)** — Mento bootstrap script the spec's sweep
+   table missed. Archived; superseded by `onboarding/new-machine.md`.
+3. **Root `README.md`** rewritten for the registry era (was two-machine
+   framing; referenced the removed `/harvest-memories` and `setup-mento.sh`).
+   `plan.md` deliberately kept as the system's historical build plan.
+4. **Grep false positives** (no action): `@EnvironmentObject` (swiftui-pro
+   data), `ST_MeasurementOrPercent` (ISO XML schemas), "mentorship"
+   (ai-tell-editor). Three Desktop-owned skills (google-docs-formatting,
+   managing-google-workspace-via-mcp) already say "Jeppe left Mento" — Desktop
+   is their source of truth, left alone.
+5. **`wiki/improvements-log.md`**: Mento ad-account/MCC identifiers redacted
+   during the recompile (same privacy rationale as archiving adopted.md);
+   unredacted history preserved in `~/Archives/mento/adopted-mento-era.md`.
+6. Task 5 Step 2 used `def copy_skill(` as the insert anchor (same position as
+   the plan's "after line 62").
+
+Verified end state: hook exits 0 with no banner and no `.needs-update`; scanner
+refuses `mento`/`work` labels and scans label-free as `personal`; zero
+unexpected Mento references in the synced folder; `~/.claude/skills/` has no
+mento-*/ld-audience links; `~/CLAUDE.md` carries only the breadcrumb.
