@@ -1,5 +1,7 @@
 # Claude Code Sync
 
+> **Retired (September 2026).** No longer maintained or used. Claude Desktop now copies its skills into Claude Code by itself, and keeping skills in iCloud Drive made Claude Code startup hang whenever iCloud stalled. The code stays here for reference.
+
 A system that lets multiple Claude Code environments learn from each other.
 
 If you use Claude Code on more than one machine (say, work and personal), each one accumulates different skills, hooks, plugins, and conventions over time. This system creates a learning loop between them so improvements on one machine flow to the other automatically.
